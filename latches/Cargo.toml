@@ -1,0 +1,27 @@
+[package]
+name = "latches"
+version = "0.1.0"
+edition = "2021"
+keywords = ["latch", "countdownlatch", "asynchronous", "concurrency", "synchronization"]
+categories = ["asynchronous", "concurrency", "no-std"]
+repository = "https://github.com/mirromutth/latches"
+license = "MIT OR Apache-2.0"
+description = "A downward counter (CountDownLatch) which can be used to synchronize threads or coordinate tasks"
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["--cfg", "docsrs"]
+
+[dependencies]
+atomic-wait = { version = "1", optional = true }
+
+[dev-dependencies]
+tokio = { version = "1", features = ["macros", "rt-multi-thread", "time"] }
+
+[features]
+default = ["sync", "atomic-wait"]
+futex = ["atomic-wait"]
+std = []
+sync = []
+task = []
+atomic-wait = ["dep:atomic-wait"]
