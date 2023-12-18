@@ -1,0 +1,34 @@
+name: Codecov
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  codecov:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      CARGO_TERM_COLOR: always
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Rust
+        run: rustup update stable
+      - name: Install cargo-llvm-cov
+        uses: taiki-e/install-action@cargo-llvm-cov
+      - name: Run tests for task with spins
+        run: cargo llvm-cov --no-report -p latches --no-default-features --features task
+      - name: Run tests for all with atomic-wait
+        run: cargo llvm-cov --no-report -p latches --no-default-features --features task --features futex --features sync
+      - name: Runn tests for all features
+        run: cargo llvm-cov --no-report -p latches --all-features
+      - name: Generate coverage report
+        run: cargo llvm-cov report --codecov --ignore-filename-regex tests --output-path codecov.json
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: codecov.json
+          fail_ci_if_error: true
