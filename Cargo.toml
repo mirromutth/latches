@@ -4,5 +4,6 @@ members = [
   "latches",
 
   # Internal
+  "benches",
   "no-std-tests",
 ]

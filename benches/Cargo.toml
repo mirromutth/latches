@@ -1,0 +1,61 @@
+[package]
+name = "benches"
+version = "0.0.0"
+publish = false
+edition = "2021"
+
+[dependencies]
+latches = { path = "../latches", default-features = false }
+async-std = { version = "1", features = ["unstable"], optional = true }
+tokio = { version = "1", features = ["time", "sync"], optional = true }
+
+[dev-dependencies.async-std]
+version = "1"
+features = ["attributes", "unstable"]
+
+[dev-dependencies.criterion]
+version = "0.5"
+features = ["async_tokio", "async_std", "html_reports"]
+
+[dev-dependencies.tokio]
+version = "1"
+features = ["macros", "rt-multi-thread", "time", "sync"]
+
+[features]
+default = ["sync", "task", "futex"]
+atomic-wait = ["latches/atomic-wait"]
+futex = ["latches/futex"]
+std = ["latches/std"]
+sync = ["latches/sync"]
+task = ["latches/task"]
+comparison = ["async-std", "tokio"]
+
+[[bench]]
+name = "futex"
+harness = false
+required-features = ["futex"]
+
+[[bench]]
+name = "sync"
+harness = false
+required-features = ["sync"]
+
+[[bench]]
+name = "task"
+harness = false
+required-features = ["task"]
+
+[[bench]]
+name = "mutex"
+harness = false
+required-features = ["comparison"]
+
+[[bench]]
+name = "tokio"
+harness = false
+required-features = ["comparison"]
+
+[[bench]]
+name = "async_std"
+harness = false
+required-features = ["comparison"]
