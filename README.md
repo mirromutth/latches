@@ -1,7 +1,7 @@
 # Latches
 
 [![Crates.io](https://img.shields.io/crates/d/latches)](https://crates.io/crates/latches)
-[![docs.rs](https://img.shields.io/docsrs/latches/latest)](https://docs.rs/latches)
+[![docs.rs](https://img.shields.io/docsrs/latches/0.1.1)](https://docs.rs/latches/0.1.1/latches)
 [![build status](https://img.shields.io/github/actions/workflow/status/mirromutth/latches/tests.yml?style=flat-square&logo=github)](https://github.com/mirromutth/latches/actions/workflows/tests.yml)
 [![codecov](https://codecov.io/github/mirromutth/latches/graph/badge.svg?token=0F0XY09UVG)](https://codecov.io/github/mirromutth/latches)
 [![license](https://img.shields.io/badge/license-Apache--2.0_OR_MIT-blue?style=flat-square)](#license)
