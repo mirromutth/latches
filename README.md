@@ -1,5 +1,6 @@
 # Latches
 
+[![build status](https://img.shields.io/github/actions/workflow/status/mirromutth/latches/tests.yml?style=flat-square&logo=github)](https://github.com/mirromutth/latches/actions/workflows/tests.yml)
 [![codecov](https://codecov.io/github/mirromutth/latches/graph/badge.svg?token=0F0XY09UVG)](https://codecov.io/github/mirromutth/latches)
 [![license](https://img.shields.io/badge/license-Apache--2.0_OR_MIT-blue?style=flat-square)](#license)
 
