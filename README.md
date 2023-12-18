@@ -1,5 +1,8 @@
 # Latches
 
+[![codecov](https://codecov.io/github/mirromutth/latches/graph/badge.svg?token=0F0XY09UVG)](https://codecov.io/github/mirromutth/latches)
+[![license](https://img.shields.io/badge/license-Apache--2.0_OR_MIT-blue?style=flat-square)](#license)
+
 A latch is a downward counter which can be used to synchronize threads or coordinate tasks. The value of the counter is initialized on creation. Threads/tasks may block/suspend on the latch until the counter is decremented to 0.
 
 In contrast to [`std::sync::Barrier`][std-barrier], it is a one-shot phenomenon, that mean the counter will not be reset after reaching 0. Instead, it has the useful property that it does not make them wait for the counter to reach 0 by calling `count_down()` or `arrive()`. This also means that it can be decremented by a participating thread/task more than once.
