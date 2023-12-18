@@ -6,7 +6,10 @@ use core::{
 };
 use core::{
     marker::PhantomData,
-    sync::atomic::{AtomicU32, Ordering},
+    sync::atomic::{
+        AtomicU32,
+        Ordering::{Acquire, Relaxed, Release},
+    },
 };
 
 /// An alternative to [`std::sync::Mutex`] for `no_std`.
@@ -66,11 +69,8 @@ impl<T> Mutex<T> {
 #[cfg(feature = "task")]
 impl<T: ?Sized> Mutex<T> {
     pub(crate) fn lock(&self) -> MutexGuard<'_, T> {
-        if let Err(s) = self
-            .stat
-            .compare_exchange(0, 1, Ordering::Acquire, Ordering::Relaxed)
-        {
-            self.lock_slow(s)
+        if self.stat.compare_exchange(0, 1, Acquire, Relaxed).is_err() {
+            self.lock_slow()
         }
 
         MutexGuard {
@@ -81,82 +81,49 @@ impl<T: ?Sized> Mutex<T> {
 
     /// Blocks the current thread until the lock is acquired.
     ///
-    /// State transitions:
-    ///
-    /// - 0: *attempt* mutate to 1 (locked)
-    /// - 1, spin times > 0: spin counter - 1, spin with hint
-    /// - 1, spin times == 0: *attempt* mutate to 2 (contended)
-    /// - 2: *attempt* atomic-wait, reset spin times after that
-    ///
-    /// If any *attempt* fails, loop again with new value. Note that it should
-    /// not consume the spin counter.
-    ///
-    /// It does not mutate the state from 0 to 2 directly, that means it must
-    /// have at least one thread waiting if the state is 2. This can avoid
-    /// wake-up syscalls when no one is waiting.
-    ///
-    /// The loop is easier on the caches and some platforms.
-    ///
-    /// - Use `compare_exchange_weak` for mutations in loop
-    /// - Use only `load` for spins
+    /// See also the `futex_mutex.rs` in the `std`.
     #[cold]
-    fn lock_slow(&self, curt: u32) {
-        let mut curt = curt;
-        #[cfg(not(coverage))]
-        let mut spin = 100;
-        #[cfg(coverage)]
-        let mut spin = match std::env::var("__LATCHES_SPIN_TIMES") {
-            Ok(x) => x.parse().unwrap_or(100),
-            Err(_) => 100,
-        };
+    fn lock_slow(&self) {
+        let mut stat = self.spin();
+
+        if stat == 0 {
+            match self.stat.compare_exchange(0, 1, Acquire, Relaxed) {
+                Ok(_) => return,
+                Err(s) => stat = s,
+            }
+        }
 
         loop {
-            curt = match curt {
-                0 => match self.stat.compare_exchange_weak(
-                    0,
-                    1,
-                    Ordering::Acquire,
-                    Ordering::Relaxed,
-                ) {
-                    // Locked.
-                    Ok(_) => break,
-                    // Probabilistic failure, try again with new value.
-                    Err(s) => s,
-                },
-                2 => {
-                    // Waiting to be unlocked
-                    // Or it fails due to atomic race or thread interruption
-                    atomic_wait::wait(&self.stat, 2);
-                    spin = 100;
-                    self.stat.load(Ordering::Relaxed)
-                }
-                _ => {
-                    // Spin 100 times only for the status is 1.
-                    if spin == 0 {
-                        match self.stat.compare_exchange_weak(
-                            curt,
-                            2,
-                            Ordering::Acquire,
-                            Ordering::Relaxed,
-                        ) {
-                            // Next loop will wait.
-                            Ok(_) => 2,
-                            // Probabilistic failure, try again with new value.
-                            Err(s) => s,
-                        }
-                    } else {
-                        // Spin when status is still 1.
-                        hint::spin_loop();
-                        spin -= 1;
-                        self.stat.load(Ordering::Relaxed)
-                    }
-                }
-            };
+            if stat != 2 && self.stat.swap(2, Acquire) == 0 {
+                return;
+            }
+
+            atomic_wait::wait(&self.stat, 2);
+            stat = self.spin();
+        }
+    }
+
+    fn spin(&self) -> u32 {
+        #[cfg(coverage)]
+        if let Ok(x) = std::env::var("__LATCHES_SPIN_MOCK") {
+            return x.parse().unwrap();
+        }
+        let mut spin = 100;
+
+        loop {
+            let stat = self.stat.load(Relaxed);
+
+            if stat != 1 || spin == 0 {
+                return stat;
+            }
+
+            hint::spin_loop();
+            spin -= 1;
         }
     }
 
     unsafe fn unlock(&self) {
-        if self.stat.swap(0, Ordering::Release) == 2 {
+        if self.stat.swap(0, Release) == 2 {
             atomic_wait::wake_one(&self.stat);
         }
     }
@@ -209,13 +176,13 @@ impl EmptyCondvar {
     /// | load monitor |                  | load monitor |
     /// | condition==1 |                  | condition==1 |
     pub(crate) fn notify_all(&self) {
-        self.stat.fetch_add(1, Ordering::Relaxed);
+        self.stat.fetch_add(1, Relaxed);
         atomic_wait::wake_all(&self.stat);
     }
 
     pub(crate) fn monitor(&self) -> CondvarGuard {
         CondvarGuard {
-            flag: self.stat.load(Ordering::Relaxed),
+            flag: self.stat.load(Relaxed),
             _mrk: PhantomData,
         }
     }
@@ -311,7 +278,7 @@ mod tests {
                 thread::spawn(move || {
                     let _guard = mutex.lock();
 
-                    thread::sleep(Duration::from_millis(4));
+                    thread::sleep(Duration::from_millis(10));
 
                     unsafe {
                         *counter.get() += 1;
@@ -336,14 +303,14 @@ mod tests {
         let mutex = Arc::new(Mutex::new(()));
         let m = mutex.clone();
 
-        mutex.lock_slow(0);
+        mutex.lock_slow();
 
         assert_eq!(mutex.stat.load(Ordering::Relaxed), 1);
 
         let t = thread::spawn(move || {
             let start = Instant::now();
 
-            m.lock_slow(0);
+            m.lock_slow();
             unsafe { m.unlock() };
 
             start.elapsed()
@@ -368,16 +335,26 @@ mod tests {
             }
         }
 
-        const ENV_NAME: &str = "__LATCHES_SPIN_TIMES";
-        let _e = {
-            std::env::set_var(ENV_NAME, "0");
-
-            TempEnv { name: ENV_NAME }
-        };
         let mutex = Arc::new(Mutex::new(()));
 
-        mutex.lock_slow(1);
-        assert_eq!(mutex.stat.load(Ordering::Relaxed), 1);
+        mutex.lock_slow();
+
+        let m = mutex.clone();
+        let t = thread::spawn(move || {
+            const ENV_NAME: &str = "__LATCHES_SPIN_MOCK";
+
+            let _e = {
+                assert_eq!(m.stat.load(Ordering::Relaxed), 1);
+                std::env::set_var(ENV_NAME, "0");
+
+                TempEnv { name: ENV_NAME }
+            };
+            m.lock_slow();
+            unsafe { m.unlock() };
+        });
+
+        thread::sleep(Duration::from_millis(16));
         unsafe { mutex.unlock() };
+        t.join().unwrap();
     }
 }
