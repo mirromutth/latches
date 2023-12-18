@@ -54,11 +54,29 @@ fn test_upsert_wake() {
 }
 
 #[test]
-fn test_mutex_waitters() {
+fn test_mutex_waiters_read() {
+    let waiters = Arc::new(Mutex::new(Waiters::new()));
+    let handles = (0..16)
+        .map(|_| {
+            let waiters = waiters.clone();
+
+            thread::spawn(move || {
+                assert_eq!(waiters.lock().data.len(), 0);
+            })
+        })
+        .collect::<Vec<_>>();
+
+    for t in handles {
+        t.join().unwrap();
+    }
+}
+
+#[test]
+fn test_mutex_waitters_upsert() {
     let data = Arc::new(Box::pin(AtomicU32::new(0)));
     let mutex = Arc::new(Mutex::new(Waiters::new()));
 
-    for _ in 0..5 {
+    for _ in 0..10 {
         let data = data.clone();
         let mutex = mutex.clone();
 
@@ -75,7 +93,7 @@ fn test_mutex_waitters() {
 
     let mut waiters = mutex.lock();
 
-    assert_eq!(waiters.data.len(), 5);
+    assert_eq!(waiters.data.len(), 10);
     wake_all(waiters.take());
     assert!(waiters.data.is_empty());
 }
