@@ -6,6 +6,7 @@ keywords = ["latch", "countdownlatch", "asynchronous", "concurrency", "synchroni
 categories = ["asynchronous", "concurrency", "no-std"]
 repository = "https://github.com/mirromutth/latches"
 license = "MIT OR Apache-2.0"
+readme = "../README.md"
 description = "A downward counter (CountDownLatch) which can be used to synchronize threads or coordinate tasks"
 
 [package.metadata.docs.rs]
