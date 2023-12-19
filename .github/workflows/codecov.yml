@@ -22,7 +22,7 @@ jobs:
         run: cargo llvm-cov --no-report -p latches --no-default-features --features task
       - name: Run tests for all with atomic-wait
         run: cargo llvm-cov --no-report -p latches --no-default-features --features task --features futex --features sync
-      - name: Runn tests for all features
+      - name: Run tests for all features
         run: cargo llvm-cov --no-report -p latches --all-features
       - name: Generate coverage report
         run: cargo llvm-cov report --codecov --ignore-filename-regex tests --output-path codecov.json
