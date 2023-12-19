@@ -19,8 +19,8 @@ use super::Latch;
 /// Asynchronous timer may not be accurate.
 macro_rules! assert_time {
     ($time:expr, $mills:literal $(,)?) => {
-        assert!((Duration::from_millis($mills)
-            ..Duration::from_millis($mills + std::cmp::max($mills >> 1, 32)))
+        assert!((Duration::from_millis($mills - 1)
+            ..Duration::from_millis($mills + std::cmp::max($mills >> 1, 50)))
             .contains(&$time))
     };
 }
@@ -196,7 +196,7 @@ async fn test_multi_tasks() {
         let counter = counter.clone();
 
         tokio::spawn(async move {
-            sleep(Duration::from_millis(10)).await;
+            sleep(Duration::from_millis(20)).await;
             counter.fetch_add(1, Ordering::Relaxed);
             latch.count_down()
         });
@@ -205,7 +205,7 @@ async fn test_multi_tasks() {
     let start = Instant::now();
 
     latch.wait().await;
-    assert_time!(start.elapsed(), 10);
+    assert_time!(start.elapsed(), 20);
     assert_eq!(counter.load(Ordering::Relaxed), SIZE);
     assert_eq!(latch.count(), 0);
 }

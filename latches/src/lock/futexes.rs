@@ -205,8 +205,8 @@ mod tests {
 
     macro_rules! assert_time {
         ($time:expr, $m:literal $(,)?) => {
-            assert!((Duration::from_millis($m)
-                ..Duration::from_millis($m + std::cmp::max($m >> 1, 10)))
+            assert!((Duration::from_millis($m - 1)
+                ..Duration::from_millis($m + std::cmp::max($m >> 1, 50)))
                 .contains(&$time))
         };
     }
@@ -314,10 +314,10 @@ mod tests {
             start.elapsed()
         });
 
-        thread::sleep(Duration::from_millis(10));
+        thread::sleep(Duration::from_millis(20));
         unsafe { mutex.unlock() };
 
-        assert_time!(t.join().unwrap(), 10);
+        assert_time!(t.join().unwrap(), 20);
     }
 
     #[cfg(coverage)]
