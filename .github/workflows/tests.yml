@@ -3,7 +3,37 @@ name: Tests
 on: [ pull_request ]
 
 jobs:
-  build:
+  lints:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      CARGO_TERM_COLOR: always
+      RUSTFLAGS: -D warnings
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Rust
+        run: rustup update stable
+      - name: Install clippy
+        run: rustup component add clippy
+      - name: Run clippy for sync with atomic-wait
+        run: cargo clippy -p latches --no-default-features --features sync --features atomic-wait
+      - name: Run clippy for sync with atomic-wait
+        run: cargo clippy -p latches --no-default-features --features sync --features atomic-wait
+      - name: Run clippy for sync with std
+        run: cargo clippy -p latches --no-default-features --features sync --features std
+      - name: Run clippy for futex
+        run: cargo clippy -p latches --no-default-features --features futex
+      - name: Run clippy for task with spins
+        run: cargo clippy -p latches --no-default-features --features task
+      - name: Run clippy for task with atomic-wait
+        run: cargo clippy -p latches --no-default-features --features task --features atomic-wait
+      - name: Run clippy for task with std
+        run: cargo clippy -p latches --no-default-features --features task --features std
+      - name: Run clippy for all with atomic-wait
+        run: cargo clippy -p latches --no-default-features --features task --features futex --features sync
+      - name: Run clippy for all targets
+        run: cargo clippy --all-targets --all-features
+  tests:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
