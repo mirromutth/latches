@@ -3,7 +3,11 @@
     missing_docs,
     rust_2018_idioms,
     unreachable_pub,
-    elided_lifetimes_in_paths
+    elided_lifetimes_in_paths,
+    clippy::missing_const_for_fn,
+    clippy::missing_panics_doc,
+    clippy::missing_safety_doc,
+    clippy::missing_errors_doc
 )]
 #![doc(test(no_crate_inject, attr(deny(warnings, rust_2018_idioms))))]
 #![cfg_attr(docsrs, feature(doc_cfg))]

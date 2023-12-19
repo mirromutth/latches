@@ -30,7 +30,7 @@ impl<T> WaitTimeoutResult<T> {
     /// ```
     #[must_use]
     #[inline]
-    pub fn is_reached(&self) -> bool {
+    pub const fn is_reached(&self) -> bool {
         matches!(self, WaitTimeoutResult::Reached)
     }
 
@@ -49,7 +49,7 @@ impl<T> WaitTimeoutResult<T> {
     /// ```
     #[must_use]
     #[inline]
-    pub fn is_timed_out(&self) -> bool {
+    pub const fn is_timed_out(&self) -> bool {
         matches!(self, WaitTimeoutResult::TimedOut(_))
     }
 
@@ -87,6 +87,11 @@ impl<T> WaitTimeoutResult<T> {
     /// result of a function call, it is recommended to use [`ok_by`], which
     /// is lazily evaluated.
     ///
+    /// # Errors
+    ///
+    /// This function will return an error with the content of [`TimedOut(t)`]
+    /// if it is timed out.
+    ///
     /// [`Ok(v)`]: Ok
     /// [`Err(t)`]: Err
     /// [`Reached`]: WaitTimeoutResult::Reached
@@ -119,6 +124,11 @@ impl<T> WaitTimeoutResult<T> {
     /// [`Err(t)`]: Err
     /// [`Reached`]: WaitTimeoutResult::Reached
     /// [`TimedOut(t)`]: WaitTimeoutResult::TimedOut
+    ///
+    /// # Errors
+    ///
+    /// This function will return an error with the content of [`TimedOut(t)`]
+    /// if it is timed out.
     ///
     /// # Examples
     ///
