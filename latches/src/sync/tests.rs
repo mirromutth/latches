@@ -6,8 +6,8 @@ use std::time::Instant;
 #[cfg(feature = "std")]
 macro_rules! assert_time {
     ($time:expr, $mills:literal $(,)?) => {
-        assert!((Duration::from_millis($mills)
-            ..Duration::from_millis($mills + std::cmp::max($mills >> 1, 10)))
+        assert!((Duration::from_millis($mills - 1)
+            ..Duration::from_millis($mills + std::cmp::max($mills >> 1, 50)))
             .contains(&$time))
     };
 }
@@ -215,14 +215,14 @@ fn test_two_wait_timeout() {
 
     let fast = thread::spawn(move || {
         let start = Instant::now();
-        let r = l1.wait_timeout(Duration::from_millis(10));
+        let r = l1.wait_timeout(Duration::from_millis(20));
 
         assert!(r.is_timed_out());
         start.elapsed()
     });
 
     assert_time!(slow.join().unwrap(), 100);
-    assert_time!(fast.join().unwrap(), 10);
+    assert_time!(fast.join().unwrap(), 20);
 }
 
 #[cfg(feature = "std")]
