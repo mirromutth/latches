@@ -1,10 +1,11 @@
 # Latches
 
-[![Crates.io](https://img.shields.io/crates/d/latches)](https://crates.io/crates/latches)
+[![Crates.io](https://img.shields.io/crates/v/latches)](https://crates.io/crates/latches)
 [![docs.rs](https://img.shields.io/docsrs/latches/latest)](https://docs.rs/latches)
 [![build status](https://img.shields.io/github/actions/workflow/status/mirromutth/latches/tests.yml?style=flat-square&logo=github)](https://github.com/mirromutth/latches/actions/workflows/tests.yml)
 [![codecov](https://codecov.io/github/mirromutth/latches/graph/badge.svg?token=0F0XY09UVG)](https://codecov.io/github/mirromutth/latches)
-[![license](https://img.shields.io/badge/license-Apache--2.0_OR_MIT-blue?style=flat-square)](#license)
+[![download](https://img.shields.io/crates/d/latches)](https://crates.io/crates/latches)
+[![license](https://img.shields.io/crates/l/latches)](#license)
 
 A latch is a downward counter which can be used to synchronize threads or coordinate tasks. The value of the counter is initialized on creation. Threads/tasks may block/suspend on the latch until the counter is decremented to 0.
 
