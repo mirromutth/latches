@@ -11,8 +11,8 @@
 
 //! An implementation collection of latches.
 //!
-//! A latch is a downward counter which can be used to threads or asynchronize
-//! tasks. The value of the counter is initialized on creation.
+//! A latch is a downward counter which can be used to synchronize threads or
+//! coordinate tasks. The value of the counter is initialized on creation.
 //!
 //! In contrast to [`Barrier`], it is a one-shot phenomenon, that mean the
 //! counter will not be reset after reaching 0. Instead, it has the useful
