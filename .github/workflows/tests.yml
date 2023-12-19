@@ -14,5 +14,5 @@ jobs:
         run: rustup update stable
       - name: Run tests with no-std
         run: cargo test -p latches --no-default-features --features task --features futex --features sync
-      - name: Runn tests with std
+      - name: Run tests with std
         run: cargo test -p no-std-tests -p latches --all-features
