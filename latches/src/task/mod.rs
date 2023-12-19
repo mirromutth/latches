@@ -214,8 +214,12 @@ impl Latch {
         self.stat.load(Acquire)
     }
 
-    /// Checks that the counter has reached 0 and return [`Ok(())`], otherwise
-    /// return [`Err(count)`].
+    /// Checks that the counter has reached 0.
+    ///
+    /// # Errors
+    ///
+    /// This function will return an error with the current count if the
+    /// counter has not reached 0.
     ///
     /// # Examples
     ///
@@ -262,7 +266,7 @@ impl Latch {
     /// # });
     /// ```
     #[inline]
-    pub fn wait(&self) -> LatchWait<'_> {
+    pub const fn wait(&self) -> LatchWait<'_> {
         LatchWait {
             id: None,
             latch: self,
@@ -341,7 +345,7 @@ impl Latch {
     /// # });
     /// ```
     #[inline]
-    pub fn watch<T>(&self, timer: T) -> LatchWatch<'_, T> {
+    pub const fn watch<T>(&self, timer: T) -> LatchWatch<'_, T> {
         LatchWatch {
             id: None,
             latch: self,

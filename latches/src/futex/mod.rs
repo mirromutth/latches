@@ -207,8 +207,12 @@ impl Latch {
         self.stat.load(Acquire)
     }
 
-    /// Checks that the current counter has reached 0 and return [`Ok(())`],
-    /// otherwise return [`Err(count)`].
+    /// Checks that the current counter has reached 0.
+    ///
+    /// # Errors
+    ///
+    /// This function will return an error with the current count if the
+    /// counter has not reached 0.
     ///
     /// # Examples
     ///

@@ -1,4 +1,11 @@
 #![cfg(feature = "comparison")]
+#![deny(
+    missing_debug_implementations,
+    rust_2018_idioms,
+    unreachable_pub,
+    elided_lifetimes_in_paths,
+    clippy::missing_const_for_fn
+)]
 
 pub mod async_std;
 pub mod mutex;

@@ -26,7 +26,7 @@ fn test_ok() {
 
 #[test]
 fn test_ok_by() {
-    fn lazy_one() -> i32 {
+    const fn lazy_one() -> i32 {
         1
     }
 

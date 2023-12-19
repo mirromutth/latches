@@ -277,7 +277,7 @@ unsafe fn v_c(ptr: *const ()) -> RawWaker {
 unsafe fn wake(ptr: *const ()) {
     (*(ptr as *const AtomicU32)).fetch_add(1, Ordering::Relaxed);
 }
-unsafe fn noop(_: *const ()) {}
+const unsafe fn noop(_: *const ()) {}
 
 fn new_waker(data: Pin<&AtomicU32>) -> Waker {
     unsafe {
