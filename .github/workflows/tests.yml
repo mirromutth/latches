@@ -5,14 +5,27 @@ on: [ pull_request ]
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     env:
       CARGO_TERM_COLOR: always
+      RUSTFLAGS: -D warnings
     steps:
       - uses: actions/checkout@v4
       - name: Install Rust
         run: rustup update stable
-      - name: Run tests with no-std
+      - name: Run tests for sync with atomic-wait
+        run: cargo test -p latches --no-default-features --features sync --features atomic-wait
+      - name: Run tests for sync with std
+        run: cargo test -p latches --no-default-features --features sync --features std
+      - name: Run tests for futex
+        run: cargo test -p latches --no-default-features --features futex
+      - name: Run tests for task with spins
+        run: cargo test -p latches --no-default-features --features task
+      - name: Run tests for task with atomic-wait
+        run: cargo test -p latches --no-default-features --features task --features atomic-wait
+      - name: Run tests for task with std
+        run: cargo test -p latches --no-default-features --features task --features std
+      - name: Run tests for all with atomic-wait
         run: cargo test -p latches --no-default-features --features task --features futex --features sync
       - name: Run tests with std
         run: cargo test -p no-std-tests -p latches --all-features

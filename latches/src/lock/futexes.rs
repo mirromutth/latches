@@ -3,13 +3,11 @@ use core::{
     cell::UnsafeCell,
     hint,
     ops::{Deref, DerefMut},
+    sync::atomic::Ordering::{Acquire, Release},
 };
 use core::{
     marker::PhantomData,
-    sync::atomic::{
-        AtomicU32,
-        Ordering::{Acquire, Relaxed, Release},
-    },
+    sync::atomic::{AtomicU32, Ordering::Relaxed},
 };
 
 /// An alternative to [`std::sync::Mutex`] for `no_std`.
