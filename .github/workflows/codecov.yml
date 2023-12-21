@@ -20,11 +20,11 @@ jobs:
       - name: Install cargo-llvm-cov
         uses: taiki-e/install-action@cargo-llvm-cov
       - name: Run tests for task with spins
-        run: cargo llvm-cov --no-report -p latches --no-default-features --features task
+        run: cargo llvm-cov --no-report -q -p latches --no-default-features --features task
       - name: Run tests for all with atomic-wait
-        run: cargo llvm-cov --no-report -p latches --no-default-features --features task --features futex --features sync
+        run: cargo llvm-cov --no-report -q -p latches --no-default-features --features task --features futex --features sync
       - name: Run tests for all features
-        run: cargo llvm-cov --no-report -p latches --all-features
+        run: cargo llvm-cov --no-report -q -p latches --all-features
       - name: Generate coverage report
         run: cargo llvm-cov report --codecov --ignore-filename-regex tests --output-path codecov.json
       - name: Upload coverage to Codecov

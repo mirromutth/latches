@@ -16,23 +16,21 @@ jobs:
       - name: Install clippy
         run: rustup component add clippy
       - name: Run clippy for sync with atomic-wait
-        run: cargo clippy -p latches --no-default-features --features sync --features atomic-wait
-      - name: Run clippy for sync with atomic-wait
-        run: cargo clippy -p latches --no-default-features --features sync --features atomic-wait
+        run: cargo clippy -q -p latches --no-default-features --features sync --features atomic-wait
       - name: Run clippy for sync with std
-        run: cargo clippy -p latches --no-default-features --features sync --features std
+        run: cargo clippy -q -p latches --no-default-features --features sync --features std
       - name: Run clippy for futex
-        run: cargo clippy -p latches --no-default-features --features futex
+        run: cargo clippy -q -p latches --no-default-features --features futex
       - name: Run clippy for task with spins
-        run: cargo clippy -p latches --no-default-features --features task
+        run: cargo clippy -q -p latches --no-default-features --features task
       - name: Run clippy for task with atomic-wait
-        run: cargo clippy -p latches --no-default-features --features task --features atomic-wait
+        run: cargo clippy -q -p latches --no-default-features --features task --features atomic-wait
       - name: Run clippy for task with std
-        run: cargo clippy -p latches --no-default-features --features task --features std
+        run: cargo clippy -q -p latches --no-default-features --features task --features std
       - name: Run clippy for all with atomic-wait
-        run: cargo clippy -p latches --no-default-features --features task --features futex --features sync
+        run: cargo clippy -q -p latches --no-default-features --features task --features futex --features sync
       - name: Run clippy for all targets
-        run: cargo clippy --all-targets --all-features
+        run: cargo clippy -q --all-targets --all-features
   tests:
     runs-on: ubuntu-latest
     timeout-minutes: 15
@@ -44,18 +42,18 @@ jobs:
       - name: Install Rust
         run: rustup update stable
       - name: Run tests for sync with atomic-wait
-        run: cargo test -p latches --no-default-features --features sync --features atomic-wait
+        run: cargo test -q -p latches --no-default-features --features sync --features atomic-wait
       - name: Run tests for sync with std
-        run: cargo test -p latches --no-default-features --features sync --features std
+        run: cargo test -q -p latches --no-default-features --features sync --features std
       - name: Run tests for futex
-        run: cargo test -p latches --no-default-features --features futex
+        run: cargo test -q -p latches --no-default-features --features futex
       - name: Run tests for task with spins
-        run: cargo test -p latches --no-default-features --features task
+        run: cargo test -q -p latches --no-default-features --features task
       - name: Run tests for task with atomic-wait
-        run: cargo test -p latches --no-default-features --features task --features atomic-wait
+        run: cargo test -q -p latches --no-default-features --features task --features atomic-wait
       - name: Run tests for task with std
-        run: cargo test -p latches --no-default-features --features task --features std
+        run: cargo test -q -p latches --no-default-features --features task --features std
       - name: Run tests for all with atomic-wait
-        run: cargo test -p latches --no-default-features --features task --features futex --features sync
+        run: cargo test -q -p latches --no-default-features --features task --features futex --features sync
       - name: Run tests with std
-        run: cargo test -p no-std-tests -p latches --all-features
+        run: cargo test -q -p no-std-tests -p latches --all-features
