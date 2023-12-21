@@ -1,14 +1,3 @@
-#[cfg(feature = "std")]
-use std::{
-    fmt, hint,
-    sync::atomic::{
-        AtomicUsize,
-        Ordering::{Acquire, Relaxed, Release},
-    },
-    time::{Duration, Instant},
-};
-
-#[cfg(not(feature = "std"))]
 use core::{
     fmt, hint,
     sync::atomic::{
@@ -16,6 +5,9 @@ use core::{
         Ordering::{Acquire, Relaxed, Release},
     },
 };
+
+#[cfg(feature = "std")]
+use std::time::{Duration, Instant};
 
 #[cfg(all(not(feature = "std"), not(feature = "atomic-wait")))]
 compile_error!("`sync` requires `std` or `atomic-wait` feature for Condvar");

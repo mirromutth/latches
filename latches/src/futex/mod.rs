@@ -1,13 +1,3 @@
-#[cfg(feature = "std")]
-use std::{
-    fmt, hint,
-    sync::atomic::{
-        AtomicU32,
-        Ordering::{Acquire, Relaxed, Release},
-    },
-};
-
-#[cfg(not(feature = "std"))]
 use core::{
     fmt, hint,
     sync::atomic::{

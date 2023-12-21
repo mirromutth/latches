@@ -1,17 +1,3 @@
-#[cfg(feature = "std")]
-use std::{
-    fmt,
-    future::Future,
-    hint,
-    pin::Pin,
-    sync::atomic::{
-        AtomicUsize,
-        Ordering::{Acquire, Relaxed, Release},
-    },
-    task::{Context, Poll},
-};
-
-#[cfg(not(feature = "std"))]
 use core::{
     fmt,
     future::Future,
