@@ -113,20 +113,9 @@ impl Latch {
     /// let latch = Latch::new(10);
     /// # drop(latch);
     /// ```
-    #[cfg(not(latches_no_const_sync))]
     #[must_use]
     #[inline]
     pub const fn new(count: usize) -> Self {
-        Self {
-            stat: AtomicUsize::new(count),
-            lock: Mutex::new(Waiters::new()),
-        }
-    }
-    /// Creates a new latch initialized with the given count.
-    #[cfg(latches_no_const_sync)]
-    #[must_use]
-    #[inline]
-    pub fn new(count: usize) -> Self {
         Self {
             stat: AtomicUsize::new(count),
             lock: Mutex::new(Waiters::new()),
