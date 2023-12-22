@@ -15,16 +15,9 @@ pub(crate) struct EmptyCondvar(Mutex<()>, StdCondvar);
 pub(crate) type CondvarGuard<'a> = MutexGuard<'a, ()>;
 
 impl<T> Mutex<T> {
-    #[cfg(not(latches_no_const_sync))]
     #[must_use]
     #[inline]
     pub(crate) const fn new(t: T) -> Self {
-        Self(StdMutex::new(t))
-    }
-    #[cfg(latches_no_const_sync)]
-    #[must_use]
-    #[inline]
-    pub(crate) fn new(t: T) -> Self {
         Self(StdMutex::new(t))
     }
 
@@ -38,16 +31,9 @@ impl<T> Mutex<T> {
 
 #[cfg(feature = "sync")]
 impl EmptyCondvar {
-    #[cfg(not(latches_no_const_sync))]
     #[must_use]
     #[inline]
     pub(crate) const fn new() -> Self {
-        Self(Mutex::new(()), StdCondvar::new())
-    }
-    #[cfg(latches_no_const_sync)]
-    #[must_use]
-    #[inline]
-    pub(crate) fn new() -> Self {
         Self(Mutex::new(()), StdCondvar::new())
     }
 
