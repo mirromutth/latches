@@ -1,16 +1,20 @@
-macro_rules! cfg_impl {
-    ($f:meta => $m:ident $(,)?) => {
-        #[cfg(all(feature = "task", $f))]
-        pub(crate) use $m::Mutex;
+#[cfg(all(feature = "task", feature = "std"))]
+pub(crate) use stds::Mutex;
+#[cfg(all(feature = "sync", feature = "std"))]
+pub(crate) use stds::EmptyCondvar;
+#[cfg(feature = "std")]
+mod stds;
 
-        #[cfg(all(feature = "sync", $f))]
-        pub(crate) use $m::EmptyCondvar;
+#[cfg(all(feature = "task", all(not(feature = "std"), feature = "atomic-wait")))]
+pub(crate) use futexes::Mutex;
+#[cfg(all(feature = "sync", all(not(feature = "std"), feature = "atomic-wait")))]
+pub(crate) use futexes::EmptyCondvar;
+#[cfg(all(not(feature = "std"), feature = "atomic-wait"))]
+mod futexes;
 
-        #[cfg($f)]
-        mod $m;
-    };
-}
-
-cfg_impl!(feature = "std" => stds);
-cfg_impl!(all(not(feature = "std"), feature = "atomic-wait") => futexes);
-cfg_impl!(all(not(feature = "std"), not(feature = "atomic-wait")) => spins);
+#[cfg(all(feature = "task", all(not(feature = "std"), not(feature = "atomic-wait"))))]
+pub(crate) use spins::Mutex;
+#[cfg(all(feature = "sync", all(not(feature = "std"), not(feature = "atomic-wait"))))]
+pub(crate) use spins::EmptyCondvar;
+#[cfg(all(not(feature = "std"), not(feature = "atomic-wait")))]
+mod spins;
