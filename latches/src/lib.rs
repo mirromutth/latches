@@ -26,12 +26,40 @@
 //!
 //! [`Barrier`]: std::sync::Barrier
 
+/// The `sync` implementation is the default implementation of threads.
+///
+/// It depends on the `atomic-wait` feature by default, enable the `std`
+/// feature will change this.
+///
+/// It support timeouts if the `std` feature is enabled.
+#[cfg(feature = "sync")]
+#[cfg_attr(docsrs, doc(cfg(feature = "sync")))]
+pub mod sync;
+
+/// The `futex` implementation.
+///
+/// It depends on the `atomic-wait` feature.
+///
+/// It does not support timeouts.
+#[cfg(feature = "futex")]
+#[cfg_attr(docsrs, doc(cfg(feature = "futex")))]
+pub mod futex;
+
+/// The `task` implementation.
+///
+/// Adding the `atomic-wait` feature or `std` feature make it more
+/// concurrency-friendly for gate scenarios.
+///
+/// It supports timeouts, but this requires a timer. See also [`watch()`].
+///
+/// [`watch()`]: crate::task::Latch::watch
+#[cfg(feature = "task")]
+#[cfg_attr(docsrs, doc(cfg(feature = "task")))]
+pub mod task;
+
+mod macros;
+
 macro_rules! cfg_item {
-    ($feature:literal => $m:item) => {
-        #[cfg(feature = $feature)]
-        #[cfg_attr(docsrs, doc(cfg(feature = $feature)))]
-        $m
-    };
     ($mt:meta => $($m:item)+) => {
         $(
         #[cfg($mt)]
@@ -40,39 +68,6 @@ macro_rules! cfg_item {
         )+
     };
 }
-
-cfg_item! { "sync" =>
-    /// The `sync` implementation is the default implementation of threads.
-    ///
-    /// It depends on the `atomic-wait` feature by default, enable the `std`
-    /// feature will change this.
-    ///
-    /// It support timeouts if the `std` feature is enabled.
-    pub mod sync;
-}
-
-cfg_item! { "futex" =>
-    /// The `futex` implementation.
-    ///
-    /// It depends on the `atomic-wait` feature.
-    ///
-    /// It does not support timeouts.
-    pub mod futex;
-}
-
-cfg_item! { "task" =>
-    /// The `task` implementation.
-    ///
-    /// Adding the `atomic-wait` feature or `std` feature make it more
-    /// concurrency-friendly for gate scenarios.
-    ///
-    /// It supports timeouts, but this requires a timer. See also [`watch()`].
-    ///
-    /// [`watch()`]: crate::task::Latch::watch
-    pub mod task;
-}
-
-mod macros;
 
 cfg_item! { any(all(feature = "sync", feature = "std"), feature = "task") =>
     pub use timeout::*;
